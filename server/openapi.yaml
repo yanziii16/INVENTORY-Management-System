@@ -1,9 +1,7 @@
 openapi: 3.0.3
 info:
-  title: College Management System - Inventory System API
-  description: >
-    Official API specification for the Inventory
-    subsystem. Designed for cross-team integration in SIA Week 6.
+  title: College Inventory Management System API
+  description: REST API specification and contract for the college-based Inventory Management System (IMS).
   version: 1.0.0
   license:
     name: MIT
@@ -11,7 +9,7 @@ info:
 
 servers:
   - url: http://localhost:3000/api/v1
-    description: Local development / Mock server
+    description: Local Mock Development Server
 
 security:
   - bearerAuth: []
@@ -31,52 +29,13 @@ paths:
               example:
                 status: "ok"
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /auth/signup:
-    post:
-      operationId: signupUser
-      summary: Register a new user account
-      description: Creates a new user account and returns user details.
-      security: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewUserPayload'
-      responses:
-        '201':
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: User created successfully
-                  user:
-                    $ref: '#/components/schemas/User'
-        '400':
-          description: Invalid user data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/InternalServerError'
 
   /auth/login:
     post:
       operationId: loginUser
-      summary: Login and get JWT Access Token
-      description: Authenticates user credentials and returns a JWT token.
+      summary: User Login
+      description: Authenticates user credentials and returns a JWT access token.
       security: []
       requestBody:
         required: true
@@ -90,269 +49,130 @@ paths:
               properties:
                 email:
                   type: string
-                  example: maria.santos@college.edu
+                  example: "admin@idsc.edu.ph"
                 password:
                   type: string
-                  example: securePassword123
+                  example: "Password123!"
       responses:
         '200':
-          description: Login successful, returns JWT token
+          description: Login successful
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  token:
-                    type: string
-                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-                  user:
-                    $ref: '#/components/schemas/User'
+              example:
+                success: true
+                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                user:
+                  id: "usr-101"
+                  name: "Admin User"
+                  role: "Administrator"
         '400':
-          description: Invalid email or password
+          $ref: '#/components/responses/BadRequest'
+
+  /auth/signup:
+    post:
+      operationId: registerUser
+      summary: Register New Account
+      description: Creates a new user account for system access.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                  example: "johndoe"
+                email:
+                  type: string
+                  example: "johndoe@idsc.edu.ph"
+                password:
+                  type: string
+                  example: "Password123!"
+      responses:
+        '201':
+          description: User account created successfully
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: true
+                message: "User registered successfully."
+        '400':
+          $ref: '#/components/responses/BadRequest'
 
   /items:
     get:
       operationId: getAllItems
-      summary: Retrieve all inventory items
-      description: Returns a list of all inventory items.
+      summary: Get All Inventory Items
+      description: Retrieves a list of all items in the inventory.
       parameters:
         - name: category
           in: query
           required: false
           schema:
             type: string
-          example: "Computer Equipment"
+          example: "Cleaning Materials"
       responses:
         '200':
-          description: Inventory items retrieved successfully
+          description: List of inventory items
           content:
             application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/InventoryItem'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
+              example:
+                success: true
+                data:
+                  - id: "itm-001"
+                    sku: "CLN-001"
+                    name: "Mop and Bucket Set"
+                    category: "Cleaning Materials"
+                    quantity: 12
+                    unit: "pcs"
+                    status: "In Stock"
+                  - id: "itm-002"
+                    sku: "UNI-006"
+                    name: "PE Uniform"
+                    category: "Uniforms & Apparel"
+                    quantity: 350
+                    unit: "pcs"
+                    status: "Low Stock"
+        '400':
+          $ref: '#/components/responses/BadRequest'
     post:
       operationId: createItem
-      summary: Create a new inventory item
-      description: Creates a new item in the college inventory.
+      summary: Add New Inventory Item
+      description: Creates a new inventory record.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/NewInventoryItemPayload'
+              $ref: '#/components/schemas/ItemInput'
       responses:
         '201':
-          description: Inventory item created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InventoryItem'
+          description: Item created successfully
         '400':
-          description: Invalid inventory item data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/BadRequest'
 
-  /items/{itemId}:
+  /items/{id}:
     get:
       operationId: getItemById
-      summary: Get inventory item by ID
-      description: Returns a specific inventory item.
+      summary: Get Item by ID
       parameters:
-        - name: itemId
+        - name: id
           in: path
           required: true
-          description: Unique identifier of the inventory item.
           schema:
             type: string
-            example: INV-2026-0001
+          example: "itm-001"
       responses:
         '200':
-          description: Inventory item found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InventoryItem'
+          description: Item details
         '404':
-          description: Inventory item not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    put:
-      operationId: updateItem
-      summary: Update inventory item
-      description: Updates an existing inventory item.
-      parameters:
-        - name: itemId
-          in: path
-          required: true
-          description: Unique identifier of the inventory item.
-          schema:
-            type: string
-            example: INV-2026-0001
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewInventoryItemPayload'
-      responses:
-        '200':
-          description: Inventory item updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InventoryItem'
-        '400':
-          description: Invalid inventory item data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Inventory item not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    delete:
-      operationId: deleteItem
-      summary: Delete inventory item
-      description: Removes an inventory item from the system.
-      parameters:
-        - name: itemId
-          in: path
-          required: true
-          description: Unique identifier of the inventory item.
-          schema:
-            type: string
-            example: INV-2026-0001
-      responses:
-        '204':
-          description: Inventory item deleted successfully
-        '404':
-          description: Inventory item not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /inventory-transactions:
-    get:
-      operationId: getInventoryTransactions
-      summary: Retrieve inventory transactions
-      description: Returns the history of inventory quantity and status changes.
-      parameters:
-        - name: itemId
-          in: query
-          required: false
-          description: Filter transactions by inventory item ID.
-          schema:
-            type: string
-            example: INV-2026-0001
-      responses:
-        '200':
-          description: Inventory transactions retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/InventoryTransaction'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    post:
-      operationId: createInventoryTransaction
-      summary: Create inventory transaction
-      description: Records a movement or change in inventory.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewInventoryTransactionPayload'
-      responses:
-        '201':
-          description: Inventory transaction created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InventoryTransaction'
-        '400':
-          description: Invalid transaction data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /users:
-    get:
-      operationId: getUsers
-      summary: Retrieve system users
-      description: Returns users who can access and manage the inventory system.
-      responses:
-        '200':
-          description: Users retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-        '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    post:
-      operationId: createUser
-      summary: Create system user
-      description: Creates a new user who can access the inventory system.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NewUserPayload'
-      responses:
-        '201':
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          description: Invalid user data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+          $ref: '#/components/responses/NotFound'
 
 components:
   securitySchemes:
@@ -362,133 +182,56 @@ components:
       bearerFormat: JWT
 
   schemas:
-    InventoryItem:
+    ItemInput:
       type: object
       required:
-        - itemId
-        - itemName
+        - name
         - category
         - quantity
       properties:
-        itemId:
+        sku:
           type: string
-          example: INV-2026-0001
-        itemName:
+          example: "CLN-001"
+        name:
           type: string
-          example: Dell OptiPlex Desktop Computer
+          example: "Mop and Bucket Set"
         category:
           type: string
-          example: Computer Equipment
+          example: "Cleaning Materials"
         quantity:
           type: integer
-          example: 25
+          example: 12
 
-    NewInventoryItemPayload:
-      type: object
-      required:
-        - itemName
-        - category
-        - quantity
-      properties:
-        itemName:
-          type: string
-          example: Dell OptiPlex Desktop Computer
-        category:
-          type: string
-          example: Computer Equipment
-        quantity:
-          type: integer
-          example: 25
+  responses:
+    BadRequest:
+      description: Bad Request - Problem Details JSON (RFC 7807)
+      content:
+        application/json:
+          example:
+            type: "https://example.com/errors/bad-request"
+            title: "Bad Request"
+            status: 400
+            detail: "Invalid parameters or missing required fields."
+            instance: "/api/v1/items"
 
-    InventoryTransaction:
-      type: object
-      required:
-        - transactionId
-        - itemId
-        - transactionType
-        - quantity
-      properties:
-        transactionId:
-          type: string
-          example: TXN-2026-0001
-        itemId:
-          type: string
-          example: INV-2026-0001
-        transactionType:
-          type: string
-          example: STOCK_IN
-        quantity:
-          type: integer
-          example: 10
+    NotFound:
+      description: Resource Not Found - Problem Details JSON (RFC 7807)
+      content:
+        application/json:
+          example:
+            type: "https://example.com/errors/not-found"
+            title: "Item Not Found"
+            status: 404
+            detail: "The item with the specified ID was not found."
+            instance: "/api/v1/items/invalid-id"
 
-    NewInventoryTransactionPayload:
-      type: object
-      required:
-        - itemId
-        - transactionType
-        - quantity
-      properties:
-        itemId:
-          type: string
-          example: INV-2026-0001
-        transactionType:
-          type: string
-          example: STOCK_IN
-        quantity:
-          type: integer
-          example: 10
-
-    User:
-      type: object
-      required:
-        - userId
-        - fullName
-        - email
-        - role
-      properties:
-        userId:
-          type: string
-          example: USR-2026-0001
-        fullName:
-          type: string
-          example: Maria Santos
-        email:
-          type: string
-          example: maria.santos@college.edu
-        role:
-          type: string
-          example: ADMIN
-
-    NewUserPayload:
-      type: object
-      required:
-        - fullName
-        - email
-        - password
-        - role
-      properties:
-        fullName:
-          type: string
-          example: Maria Santos
-        email:
-          type: string
-          example: maria.santos@college.edu
-        password:
-          type: string
-          example: securePassword123
-        role:
-          type: string
-          example: admin
-
-    ErrorResponse:
-      type: object
-      required:
-        - statusCode
-        - message
-      properties:
-        statusCode:
-          type: integer
-          example: 404
-        message:
-          type: string
-          example: Resource not found.
+    InternalServerError:
+      description: Internal Server Error - Problem Details JSON (RFC 7807)
+      content:
+        application/json:
+          example:
+            type: "https://example.com/errors/internal-error"
+            title: "Internal Server Error"
+            status: 500
+            detail: "An unexpected error occurred on the server."
+            instance: "/api/v1/health"
