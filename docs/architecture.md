@@ -41,13 +41,6 @@ Every request goes through the layers in this order, and no layer is skipped. Wh
 
 ## 5. Frontend Structure
 
-| Screen | URL in the app | Who can see it | Endpoints used |
-|--------|----------------|----------------|----------------|
-| Item list | `/items` | Everyone | `GET /items` |
-| Item details and stock per warehouse | `/items/:id` | Everyone | `GET /items/{id}` |
-| Add item form | `/items/new` | Warehouse staff, Admin | `POST /items` |
-| Issue item form | `/issuances/new` | Warehouse staff | `POST /issuances` |
-| Low-stock alerts | `/low-stock` | Warehouse staff, Admin | `GET /items/low-stock` |
 
 ## 6. Example Request Flow
 
