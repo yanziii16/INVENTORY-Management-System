@@ -1,8 +1,11 @@
-# Documentation
+# Documentation — Inventory Management System
 
-This folder explains the project. The code shows **how** things work. These docs explain **what** the system is, **why** it was built this way, and **how it connects** to other modules.
+This folder explains the **Inventory Management System**. The code shows **how** things work, while these docs explain **what** the system is, **why** it was built this way, and **how it connects** to other modules.
 
-**Owner:** the Documentation member. **Everyone contributes:** whoever builds something writes a first draft or tells the Documentation member what changed, and the Documentation member cleans it up and keeps it current.
+**Owner:** Documentation Member  
+**Everyone contributes:** Anyone who builds or updates a feature writes a draft or informs the Documentation member, who cleans it up and keeps it current.
+
+---
 
 ## What's in this folder
 
@@ -15,52 +18,34 @@ This folder explains the project. The code shows **how** things work. These docs
 | [decisions/](decisions/) | Why did we choose X over Y? | Whoever made the decision |
 | [../server/openapi.yaml](../server/openapi.yaml) | What endpoints exist? (the API contract) | Backend |
 
-Each file is a template. Fill in the `[bracketed placeholders]`, follow the hidden hint comments (open the file in your editor to see them), then delete the hints.
+---
 
 ## When do I need to write documentation?
 
-Use this table. If you did something in the left column, update the doc in the right column **in the same pull request**.
+Update documentation **in the same pull request** as your code changes:
 
 | If you... | Update... |
 |-----------|-----------|
-| Added, removed, or changed an endpoint (path, fields, status codes) | `server/openapi.yaml`, **before** writing the code |
-| Chose a framework, library, database, or approach over other options | A new ADR in `decisions/` |
-| Added or changed a piece of data (e.g., a new `dueDate` field on a loan) | `data-model.md` |
-| Need data from another module, or another module needs data from you | `integration.md` (and tell that group) |
-| Added a new color, font, component, or UI pattern | `design-system.md` |
-| Added a new part of the system (new folder, new layer, new external service) | `architecture.md` |
-| Changed how to install or run the project, or added an environment variable | Root `README.md` (Getting Started) and the `.env.example` file |
-| Finished a feature | Tick it off in the root `README.md` feature list |
-| Fixed a small bug, renamed a variable, or changed one button's style | Nothing. The commit message is enough |
+| Added, removed, or changed an inventory endpoint | `server/openapi.yaml` (before writing code) |
+| Chose a framework, library, database, or approach | A new ADR in `decisions/` |
+| Added or changed data fields (e.g., `sku`, `quantity`, `reorderLevel`) | `data-model.md` |
+| Integrated data with another module | `integration.md` (and notify that group) |
+| Added UI elements (e.g., badges, buttons, inventory tables) | `design-system.md` |
+| Added new structure (new folder, service, or layer) | `architecture.md` |
+| Changed setup steps or environment variables | Root `README.md` & `.env.example` |
+| Finished a feature | Root `README.md` feature checklist |
+| Fixed a small bug or tweaked minor styling | Nothing. The commit message is enough |
 
-### Still not sure? Ask these 3 questions
 
-1. **Would a new teammate have to ask someone to understand this?** If yes, document it.
-2. **Will someone later ask "why did you do it this way?"** If yes, write an ADR.
-3. **Does it affect another group member or another module?** If yes, document it **and** tell them.
+---
 
-If all three answers are "no", you probably don't need to write docs.
 
-## Rules for good docs
+## Presentation Checklist (Documentation Lead)
 
-- **Write for a classmate who missed the last three meetings.** Use short sentences and no inside jokes.
-- **Docs change with the code.** Outdated docs are worse than no docs. A pull request that changes behavior is not finished until the docs match.
-- **Link instead of copying.** Endpoint details live only in `openapi.yaml`. Other docs link to it instead of repeating it.
-- **Show, don't just tell.** Use tables, diagrams, examples, and screenshots.
-- **No leftover template text.** If a section doesn't apply yet, write "Not applicable yet, planned for finals" instead of leaving the placeholder.
-
-## Diagrams and images
-
-- **Prefer Mermaid diagrams.** They are written as text inside the Markdown file, GitHub shows them as pictures, and they are easy to update. Try them at <https://mermaid.live>. In VS Code, install the "Markdown Preview Mermaid Support" extension to preview them.
-- **Screenshots and other images** go in `docs/images/` (create the folder when you need it). Link them like this: `![Login screen](images/login.png)`.
-
-## Checklist before each presentation (Documentation member)
-
-- [ ] Root `README.md` is fully filled in, and Getting Started works on a fresh clone
-- [ ] `architecture.md` diagrams match the current system
-- [ ] `data-model.md` matches the mock data in `server/src/data/`
-- [ ] `integration.md` lists every module we send data to or get data from
-- [ ] `design-system.md` matches what the UI actually uses
-- [ ] There's an ADR for each major choice (at least: backend framework and frontend framework)
-- [ ] No `[placeholders]` or template hints left
-- [ ] Instructor's handout completed (submitted separately)
+- [ ] Root `README.md` is filled out and setup works on a fresh clone.
+- [ ] `architecture.md` reflects current system setup.
+- [ ] `data-model.md` matches the database schema.
+- [ ] `integration.md` covers connected modules.
+- [ ] `design-system.md` matches the live UI.
+- [ ] ADRs recorded for major technical decisions.
+- [ ] All `[placeholders]` removed.
