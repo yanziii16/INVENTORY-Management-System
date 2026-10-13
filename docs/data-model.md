@@ -13,13 +13,6 @@
 | Employee | The staff member who performed a transaction | HR module (we store only their ID) |
 
 ## 2. Entity Relationship Diagram
-erDiagram
-    CATEGORY ||--o{ ITEM : contains
-    WAREHOUSE ||--o{ INVENTORY_STOCK : holds
-    ITEM ||--o{ INVENTORY_STOCK : tracked_in
-    ITEM ||--o{ STOCK_TRANSACTION : involves
-    WAREHOUSE ||--o{ STOCK_TRANSACTION : located_at
-    EMPLOYEE ||--o{ STOCK_TRANSACTION : performs
 
     CATEGORY {
         string id PK
