@@ -14,7 +14,6 @@ The Inventory Module allows campus personnel to monitor asset stock levels, mana
 
 | User | What they do in this module |
 |---|---|
-| **Student** | Views available equipment for official campus requests |
 | **Faculty** | Requests equipment, items, or office supplies for academic use |
 | **Staff / Admin** | Manages item records, updates stock levels, approves requests, and logs inventory transactions |
 
