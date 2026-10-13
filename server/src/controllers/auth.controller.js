@@ -1,8 +1,8 @@
-const pool = require('../config/db'); // I-adjust ang path papunta sa db pool mo
+const pool = require('../config/db'); 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Register User (Super Admin lang dapat ang pwedeng mag-create ng users)
+// Register User (Only Super Admins should be able to create users.)
 const registerUser = async (req, res) => {
   const { username, email, password, role } = req.body;
   try {
