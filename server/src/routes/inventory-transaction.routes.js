@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth.middleware');
 
-// 1. Initial Mock Data para may maibalik agad kapag nag-GET
+// 1. Initial mock data so there’s something to return immediately when a GET request is made.
 const transactions = [
   {
     transactionId: "TRX-0001",
@@ -27,11 +27,11 @@ const transactions = [
   }
 ];
 
-// GET /api/v1/inventory-transactions - Kunin ang history (may support sa ?itemId=...)
+// GET /api/v1/inventory-transactions - Retrieve the history (with support for ?itemId=...).
 router.get('/', authenticateToken, (req, res) => {
   const { itemId } = req.query;
 
-  // Kung may ipinasa na itemId sa query params (hal. ?itemId=itm-001), i-filter ito
+  // If an itemId is provided in the query parameters (e.g., ?itemId=itm-001), filter by it
   let result = transactions;
   if (itemId) {
     result = transactions.filter(t => t.itemId === itemId);
