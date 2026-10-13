@@ -7,7 +7,7 @@ const getDashboardSummary = async (req, res) => {
       `SELECT SUM(quantity * price) AS total_inventory_value FROM items`
     );
 
-    // 2. Low stock items (mababa sa min_stock_alert)
+    // 2. Low stock items (lowe than min_stock_alert)
     const lowStock = await pool.query(
       `SELECT * FROM items WHERE quantity <= min_stock_alert AND quantity > 0`
     );
