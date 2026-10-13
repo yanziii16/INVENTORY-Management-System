@@ -1,7 +1,10 @@
-1. Overview
+# Architecture
+
+## 1. Overview
+
 The Inventory module is one of the eight modules of the College Management System. This module allows storekeepers to track campus supplies and equipment, issue items to departments, and receive low-stock alerts for reordering. We used JWT(JSON Web Token) for secure authentication of the admin and Swagger UI for API documentation and CRUD for testing. It consists of a React cleint that users interact with a Node.js + Express REST API that handles the business logic.
 
-2. System Context
+## 2. System Context
 
 ```mermaid
 flowchart LR
@@ -16,7 +19,7 @@ flowchart LR
     server <-->|"REST API"| other["Other module's API (e.g., Library, Faculty and Finance)"]
 ```
 
-3. Building Blocks
+## 3. Building Blocks
 
 | Part | Technology | What it does | Where it lives |
 |------|------------|--------------|----------------|
@@ -25,7 +28,7 @@ flowchart LR
 | API contract | OpenAPI 3.0 + Swagger UI | Lists every endpoint | `backend/openapi.yaml` |
 | Data | Mock data (midterm), PostgreSQL (finals) | Stores items, warehouses, stock levels, issuances | `backend/src/data/` |
 
-4. Backend Layers
+## 4. Backend Layers
 
 ```mermaid
 flowchart LR
@@ -36,7 +39,7 @@ flowchart LR
 
 Every request goes through the layers in this order, and no layer is skipped. When PostgreSQL is added at finals, only `data/` changes. Routes and services stay the same.
 
-5. Frontend Structure
+## 5. Frontend Structure
 
 | Screen | URL in the app | Who can see it | Endpoints used |
 |--------|----------------|----------------|----------------|
@@ -46,7 +49,24 @@ Every request goes through the layers in this order, and no layer is skipped. Wh
 | Issue item form | `/issuances/new` | Warehouse staff | `POST /issuances` |
 | Low-stock alerts | `/low-stock` | Warehouse staff, Admin | `GET /items/low-stock` |
 
-7. Cross-Cutting Concerns
+## 6. Example Request Flow
+
+```mermaid
+sequenceDiagram
+    actor U as Warehouse Staff
+    participant C as Client
+    participant S as Server
+    participant D as Data
+    U->>C: Clicks "Issue item"
+    C->>S: POST /issuances
+    S->>S: Validate request & check stock level
+    S->>D: Update item quantity & record issuance
+    D-->>S: Confirmation & updated stock data
+    S-->>C: 201 Created + issuance JSON
+    C-->>U: Shows success message & updated stock
+```
+
+## 7. Cross-Cutting Concerns
 
 | Concern | How we handle it |
 |---------|------------------|
@@ -57,9 +77,9 @@ Every request goes through the layers in this order, and no layer is skipped. Wh
 | Authentication | Not in midterm. Planned: login with role-based access (staff vs admin) |
 | CORS | The server allows only the URLs in `CORS_ORIGINS` |
 
-8. Deployment
-Not applicable yet.
+## 8. Deployment
+• Not applicable yet.
 
-9. Known Limitations and Future Work
-No database yet.
-Real-time stock updates are planned for finals.
+## 9. Known Limitations and Future Work
+• No database yet.
+• Real-time stock updates are planned for finals.
