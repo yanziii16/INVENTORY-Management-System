@@ -1,57 +1,80 @@
-let mockItems = require('../data/items.mock');
+const pool = require('../config/db');
 
 class ItemService {
   async getAll(category) {
     if (category) {
-      return mockItems.filter(
-        (item) => item.category.toLowerCase() === category.toLowerCase()
-      );
+      const query = `SELECT * FROM items WHERE LOWER(category) = LOWER($1)`;
+      const result = await pool.query(query, [category]);
+      return result.rows;
     }
-    return mockItems;
+    const result = await pool.query(`SELECT * FROM items ORDER BY id ASC`);
+    return result.rows;
   }
 
   async getById(id) {
-    const item = mockItems.find((i) => i.id === id || i.id === Number(id));
-    return item || null;
+    const query = `SELECT * FROM items WHERE id = $1`;
+    const result = await pool.query(query, [id]);
+    return result.rows[0] || null;
   }
 
   async create(data) {
-    const newItem = {
-      id: `itm-00${mockItems.length + 1}`,
-      name: data.name,
-      category: data.category,
-      quantity: Number(data.quantity) || 0,
-      price: Number(data.price) || 0,
-      status: "Available",
-      lastUpdated: new Date().toISOString()
-    };
-    mockItems.push(newItem);
-    return newItem;
+    const query = `
+      INSERT INTO items (name, category, quantity, price, status, last_updated)
+      VALUES ($1, $2, $3, $4, $5, NOW())
+      RETURNING *
+    `;
+    const values = [
+      data.name,
+      data.category,
+      Number(data.quantity) || 0,
+      Number(data.price) || 0,
+      "Available"
+    ];
+    const result = await pool.query(query, values);
+    return result.rows[0];
   }
 
   async update(id, data) {
-    const index = mockItems.findIndex((i) => i.id === id || i.id === Number(id));
-    if (index === -1) return null;
+    // Dynamic update query builder
+    const fields = [];
+    const values = [];
+    let idx = 1;
 
-    mockItems[index] = {
-      ...mockItems[index],
-      name: data.name !== undefined ? data.name : mockItems[index].name,
-      category: data.category !== undefined ? data.category : mockItems[index].category,
-      quantity: data.quantity !== undefined ? Number(data.quantity) : mockItems[index].quantity,
-      price: data.price !== undefined ? Number(data.price) : mockItems[index].price,
-      lastUpdated: new Date().toISOString()
-    };
+    if (data.name !== undefined) {
+      fields.push(`name = $${idx++}`);
+      values.push(data.name);
+    }
+    if (data.category !== undefined) {
+      fields.push(`category = $${idx++}`);
+      values.push(data.category);
+    }
+    if (data.quantity !== undefined) {
+      fields.push(`quantity = $${idx++}`);
+      values.push(Number(data.quantity));
+    }
+    if (data.price !== undefined) {
+      fields.push(`price = $${idx++}`);
+      values.push(Number(data.price));
+    }
 
-    return mockItems[index];
+    fields.push(`last_updated = NOW()`);
+    values.push(id);
+
+    const query = `
+      UPDATE items 
+      SET ${fields.join(', ')}
+      WHERE id = $${idx}
+      RETURNING *
+    `;
+
+    const result = await pool.query(query, values);
+    return result.rows[0] || null;
   }
 
   async delete(id) {
-    const index = mockItems.findIndex((i) => i.id === id || i.id === Number(id));
-    if (index === -1) return null;
-
-    const deletedItem = mockItems[index];
-    mockItems = mockItems.filter((i) => i.id !== id && i.id !== Number(id));
-    return deletedItem;
+    const query = `DELETE FROM items WHERE id = $1 RETURNING *`;
+    const result = await pool.query(query, [id]);
+    return result.rows[0] || null;
   }
 }
 
