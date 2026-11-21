@@ -174,6 +174,7 @@ For the midterm, your endpoints must **really work**. They just store data in me
 - [ ] The frontend member reviewed the contract (and so did any group that calls your API)
 - [ ] **Every** endpoint in the contract is implemented and returns mock data in the correct shape
 - [ ] Swagger UI runs at `http://localhost:<port>/docs`, and "Try it out" works for every endpoint
+
 - [ ] Bad input returns `400`, and unknown IDs return `404`, both as Problem Details
 - [ ] `GET /api/v1/health` returns `{ "status": "ok" }`
 - [ ] A teammate can run the server using only the root README's Getting Started steps
