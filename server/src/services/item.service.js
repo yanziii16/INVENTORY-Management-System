@@ -19,8 +19,8 @@ class ItemService {
 
   async create(data) {
     const query = `
-      INSERT INTO items (name, category, quantity, price, status, last_updated)
-      VALUES ($1, $2, $3, $4, $5, NOW())
+      INSERT INTO items (name, category, quantity, price, min_stock_alert, status, last_updated)
+      VALUES ($1, $2, $3, $4, $5, $6, NOW())
       RETURNING *
     `;
     const values = [
@@ -28,6 +28,7 @@ class ItemService {
       data.category,
       Number(data.quantity) || 0,
       Number(data.price) || 0,
+      Number(data.min_stock_alert) || 5,
       "Available"
     ];
     const result = await pool.query(query, values);
@@ -35,7 +36,6 @@ class ItemService {
   }
 
   async update(id, data) {
-    // Dynamic update query builder
     const fields = [];
     const values = [];
     let idx = 1;
@@ -55,6 +55,10 @@ class ItemService {
     if (data.price !== undefined) {
       fields.push(`price = $${idx++}`);
       values.push(Number(data.price));
+    }
+    if (data.min_stock_alert !== undefined) {
+      fields.push(`min_stock_alert = $${idx++}`);
+      values.push(Number(data.min_stock_alert));
     }
 
     fields.push(`last_updated = NOW()`);

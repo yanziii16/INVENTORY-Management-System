@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth.middleware');
 
-// Temporary in-memory storage para sa mga items
+// Temporary in-memory storage for items
 let mockItems = [
   {
     itemId: "INV-2026-0001",
@@ -12,12 +12,12 @@ let mockItems = [
   }
 ];
 
-// GET /api/v1/items - Kunin ang lahat ng items
+// GET /api/v1/items - Get all items
 router.get('/', (req, res) => {
   res.status(200).json(mockItems);
 });
 
-// POST /api/v1/items - Gumawa ng bagong item (Protected)
+// POST /api/v1/items - Create new item (Protected)
 router.post('/', authenticateToken, (req, res) => {
   const { itemName, category, quantity } = req.body;
   
@@ -36,7 +36,7 @@ router.post('/', authenticateToken, (req, res) => {
   res.status(201).json(newItem);
 });
 
-// GET /api/v1/items/:id - Kunin ang item gamit ang ID
+// GET /api/v1/items/:id - Get item by ID
 router.get('/:id', (req, res) => {
   const item = mockItems.find(i => i.itemId === req.params.id);
   
@@ -50,7 +50,7 @@ router.get('/:id', (req, res) => {
   res.status(200).json(item);
 });
 
-// DELETE /api/v1/items/:id - Burahin ang item (Protected)
+// DELETE /api/v1/items/:id - Delete item (Protected)
 router.delete('/:id', authenticateToken, (req, res) => {
   const index = mockItems.findIndex(i => i.itemId === req.params.id);
   
