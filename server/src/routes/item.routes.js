@@ -16,7 +16,8 @@ router.get('/', async (req, res) => {
   } catch (error) {
     console.error('Get items error:', error);
     return res.status(500).json({
-      message: 'Failed to retrieve items.'
+      message: 'Failed to retrieve items.',
+      error: error.message
     });
   }
 });
