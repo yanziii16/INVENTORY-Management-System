@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Lock } from 'lucide-react';
 import { AuthShell, TextInput } from '../components/Shared';
+import { useInventory } from '../context/InventoryContext';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 const validate = (f) => {
   const e = {};
@@ -15,15 +18,43 @@ const validate = (f) => {
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const { refreshUsers, showToast } = useInventory();
   const [form, setForm] = useState({ username: '', email: '', password: '', confirm: '', agree: false });
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
     const found = validate(form);
     setErrors(found);
-    if (Object.keys(found).length === 0) navigate('/login'); // TODO: call register API
+    if (Object.keys(found).length > 0) return;
+
+    setSubmitting(true);
+    try {
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: form.username.trim(),
+          name: form.username.trim(),
+          email: form.email.trim(),
+          password: form.password,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErrors({ email: data.message || 'Could not register account.' });
+        return;
+      }
+      await refreshUsers();
+      showToast('Account created! Please log in.');
+      navigate('/login');
+    } catch {
+      setErrors({ email: 'Unable to reach backend server.' });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -37,7 +68,9 @@ export default function SignUp() {
           <input type="checkbox" checked={form.agree} onChange={set('agree')} /> I agree to the <a href="#terms" className="link link--underline">Terms &amp; Privacy Policy</a>
         </label>
         {errors.agree && <p className="field__error" style={{ marginBottom: 14 }}>{errors.agree}</p>}
-        <button type="submit" className="btn btn--primary btn--block">Sign Up</button>
+        <button type="submit" className="btn btn--primary btn--block" disabled={submitting}>
+          {submitting ? 'Creating Account...' : 'Sign Up'}
+        </button>
       </form>
     </AuthShell>
   );

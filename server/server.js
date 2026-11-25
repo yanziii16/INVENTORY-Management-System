@@ -28,7 +28,7 @@ try {
 
 // Health Check Endpoint
 app.get('/api/v1/health', (req, res) => {
-  res.status(200).json({ status: "ok" });
+  res.status(200).json({ status: "ok", service: 'inventory-backend' });
 });
 
 // API Routes under /api/v1 prefix
